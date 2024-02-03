@@ -4,7 +4,7 @@ import { TLSSocket } from "node:tls";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { trackClientHellos } from "read-tls-client-hello";
-import { getCipherMappings } from "../lib/cipherMappings.js";
+import { getCipherMappings } from "./cipherMappings.js";
 import { getCipherInfo } from "node:crypto";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

@@ -5,11 +5,10 @@
   "main": "dist/server/index.js",
   "type": "module",
   "scripts": {
-    "prebuild": "rimraf ./dist",
+    "prebuild": "rimraf dist/",
     "build": "pnpm prebuild && pnpm tsc && pnpm postbuild",
-    "postbuild": "copyfiles -u 1 \"src/server/certificates/*\" \"src/client/certificates/*\" src/lib/iana_tls_cipher_suites.csv dist/",
-    "server": "cross-env DEBUG=\"express:router\" node dist/server",
-    "client": "node dist/client",
+    "postbuild": "copyfiles -u 1 \"src/certificates/*\" src/data/iana_tls_cipher_suites.csv dist/",
+    "start": "cross-env DEBUG=\"express:router\" node dist/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

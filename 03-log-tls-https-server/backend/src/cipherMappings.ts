@@ -19,7 +19,7 @@ type CipherMap = Map<number, TlsCipherSuite>;
 export async function getCipherMappings() {
   return new Promise<CipherMap>((resolve) => {
     const cipherMap: CipherMap = new Map();
-    fs.createReadStream(path.join(__dirname, "iana_tls_cipher_suites.csv"))
+    fs.createReadStream(path.join(__dirname, "data", "iana_tls_cipher_suites.csv"))
       .pipe(
         csv({
           mapHeaders: ({ header }) => (header != "DTLS-OK" ? header.toLowerCase() : null),
