@@ -3,8 +3,13 @@ import express from "express";
 import { TLSSocket } from "node:tls";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { trackClientHellos } from "read-tls-client-hello";
+import { getCipherMappings } from "../lib/cipherMappings.js";
+import { getCipherInfo } from "node:crypto";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+const cipherMappings = await getCipherMappings();
 
 // let https: typeof import("node:https");
 let https;
@@ -18,13 +23,102 @@ try {
 const app = express();
 
 app.get("/", (req, res) => {
-  res.status(200).contentType("text").send("Hello world, served by express.\n");
+  let socket = req.socket as TLSSocket;
+
+  const clientCiphers = socket.tlsClientHello?.fingerprintData[1].map((cipherHexValueAsDec) => {
+    const cipher = cipherMappings.get(cipherHexValueAsDec);
+    if (!cipher) {
+      throw new Error("someting went wrong mapping cipher byte value");
+    }
+    // const cipherValueInBytes = cipher.value.toString("hex"); // missing byte seperation
+    const valueAsTwoBytes = Array.from(cipher.value)
+      .map((b) => `0x${b.toString(16)}`)
+      .join(",");
+
+    return `${cipherHexValueAsDec} (${valueAsTwoBytes}) ${cipher.description}`;
+  });
+
+  console.log("client ciphers:", clientCiphers);
+
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <code>${clientCiphers?.join("<br>")}</code>
+  
+</body>
+</html>
+  `;
+  res.status(200).send(html);
 });
 
 app.get("/tls-info", (req, res) => {
   let socket = req.socket as TLSSocket;
-  const ciphers = socket.getCipher();
-  res.status(200).json(ciphers);
+
+  const clientHello = socket.tlsClientHello;
+  const clientCiphers = socket.tlsClientHello?.fingerprintData[1].map((cipherHexValueAsDec) =>
+    cipherMappings.get(cipherHexValueAsDec)
+  );
+
+  // exclude:
+  //   - `tlsSocket.authorized`,
+  //   - `tlsSocket.getPeerCertificate()`,
+  //   - `tlsSocket.getPeerX509Certificate()`
+  //   because we dont expect certificate from clients
+  // TODO: incooperate `tlsSocket.enableTrace()` if it makes snese
+  // TODO: `tlsSocket.exportKeyingMaterial()`
+
+  // Certificate of server
+  const serverCertificate = socket.getCertificate();
+
+  const negotiatedCipherSuite = socket.getCipher();
+
+  const serverFinishedMessage = socket.getFinished();
+
+  const clientFinishedMessage = socket.getPeerFinished();
+
+  const protocol = socket.getProtocol();
+
+  const tlsSession = socket.getSession();
+
+  const sharedSignatureAlgorithms = socket.getSharedSigalgs();
+
+  const sessionResued = socket.isSessionReused();
+
+  const serverAddress = socket.localAddress;
+
+  const serverPort = socket.localPort;
+
+  const clientAddress = socket.remoteAddress;
+
+  const clientPort = socket.remotePort;
+
+  const clientIpFamily = socket.remoteFamily;
+
+  const response = {
+    clientHello,
+    serverCertificate,
+    negotiatedCipherSuite,
+    serverFinishedMessage,
+    clientFinishedMessage,
+    protocol,
+    tlsSession,
+    sharedSignatureAlgorithms,
+    sessionResued,
+    serverAddress,
+    serverPort,
+    clientAddress,
+    clientPort,
+    clientIpFamily,
+    clientCiphers,
+  };
+
+  res.status(200).json(response);
 });
 
 // Primitive request handler (usage without ExpressJS):
@@ -43,6 +137,17 @@ const options = {
 
 // https://expressjs.com/de/4x/api.html#app.listen
 const httpsServer = https.createServer(options, app);
+
+// httpsServer.on("connection", (socket) => {
+//   console.log("connection", socket);
+// });
+
+// httpsServer.on("newSession", (sessionId, sessionData, cb: () => void) => {
+//   console.log("new-session:", sessionData, sessionId);
+//   cb();
+// });
+
+trackClientHellos(httpsServer);
 
 const port = 9443;
 httpsServer.listen(port, () => {

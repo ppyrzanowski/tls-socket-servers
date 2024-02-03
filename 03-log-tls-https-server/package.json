@@ -5,9 +5,9 @@
   "main": "dist/server/index.js",
   "type": "module",
   "scripts": {
-    "prebuild": "rm -rf ./dist",
+    "prebuild": "rimraf ./dist",
     "build": "pnpm prebuild && pnpm tsc && pnpm postbuild",
-    "postbuild": "cp -r ./src/server/certificates ./dist/server/ && cp -r ./src/client/certificates/ ./dist/client/certificates/",
+    "postbuild": "copyfiles -u 1 \"src/server/certificates/*\" \"src/client/certificates/*\" src/lib/iana_tls_cipher_suites.csv dist/",
     "server": "cross-env DEBUG=\"express:router\" node dist/server",
     "client": "node dist/client",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -16,13 +16,17 @@
   "author": "Patrik Pyranowski",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.2"
+    "csv-parser": "^3.0.0",
+    "express": "^4.18.2",
+    "read-tls-client-hello": "^1.0.1"
   },
   "devDependencies": {
     "@tsconfig/node20": "^20.1.2",
     "@types/express": "^4.17.21",
     "@types/node": "^20.11.16",
+    "copyfiles": "^2.4.1",
     "cross-env": "^7.0.3",
+    "rimraf": "^5.0.5",
     "typescript": "^5.3.3"
   }
 }
