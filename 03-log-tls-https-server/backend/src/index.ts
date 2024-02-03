@@ -9,6 +9,8 @@ import { getCipherInfo } from "node:crypto";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+const resolve = (p: string[]) => path.resolve(__dirname, ...p);
+
 const cipherMappings = await getCipherMappings();
 
 // let https: typeof import("node:https");
@@ -21,6 +23,12 @@ try {
 }
 
 const app = express();
+app.use(express.static(resolve(["./public"])));
+// let the react app to handle any unknown routes
+// serve up the index.html if express does'nt recognize the route
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+});
 
 app.get("/", (req, res) => {
   let socket = req.socket as TLSSocket;

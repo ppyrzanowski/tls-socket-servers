@@ -1,19 +1,17 @@
 {
   "name": "https-client",
   "version": "1.0.0",
-  "description": "",
+  "description": "HTTPS client to make requests over tls to https backend",
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
-    "prebuild": "rimraf dist/",
-    "build": "pnpm prebuild && pnpm tsc && pnpm postbuild",
+    "build": "pnpm clean && pnpm tsc && pnpm postbuild",
     "postbuild": "copyfiles -u 1 \"src/certificates/*\" dist/",
     "start": "node dist/",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "clean": "rimraf dist/"
   },
-  "keywords": [],
   "author": "Patrik Pyrzanowski",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@tsconfig/node20": "^20.1.2",
     "@types/node": "^20.11.16",

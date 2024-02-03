@@ -1,15 +1,14 @@
 {
-  "name": "03-log-tls-https-server",
+  "name": "backend",
   "version": "1.0.0",
   "description": "",
   "main": "dist/server/index.js",
   "type": "module",
   "scripts": {
-    "prebuild": "rimraf dist/",
-    "build": "pnpm prebuild && pnpm tsc && pnpm postbuild",
+    "build": "pnpm clean && pnpm tsc && pnpm postbuild",
     "postbuild": "copyfiles -u 1 \"src/certificates/*\" src/data/iana_tls_cipher_suites.csv dist/",
     "start": "cross-env DEBUG=\"express:router\" node dist/",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "clean": "rimraf dist/"
   },
   "keywords": [],
   "author": "Patrik Pyranowski",

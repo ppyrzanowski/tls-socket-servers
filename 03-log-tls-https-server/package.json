@@ -1,0 +1,17 @@
+{
+  "name": "03-log-tls-https-server",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "pnpm --stream -r run build && pnpm run copy-frontend",
+    "copy-frontend": "copyfiles -u 2 \"frontend/dist/**/*\" backend/dist/public",
+    "start": "pnpm run build && pnpm run --filter=backend start",
+    "clean": "pnpm -r run clean"
+  },
+  "keywords": ["tls", "https", "ja3"],
+  "author": "Patrik Pyrzanowski",
+  "license": "MIT",
+  "devDependencies": {
+    "copyfiles": "^2.4.1"
+  }
+}
