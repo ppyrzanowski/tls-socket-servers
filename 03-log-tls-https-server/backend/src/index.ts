@@ -9,7 +9,7 @@ import { getCipherInfo } from "node:crypto";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const resolve = (p: string[]) => path.resolve(__dirname, ...p);
+const resolve = (...paths: string[]) => path.resolve(__dirname, ...paths);
 
 const cipherMappings = await getCipherMappings();
 
@@ -23,14 +23,11 @@ try {
 }
 
 const app = express();
-app.use(express.static(resolve(["./public"])));
-// let the react app to handle any unknown routes
-// serve up the index.html if express does'nt recognize the route
-app.get("*", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
-});
 
-app.get("/", (req, res) => {
+// React frontend bundle
+app.use(express.static(resolve("public", "client")));
+
+app.get("/cipher-list", (req, res) => {
   let socket = req.socket as TLSSocket;
 
   const clientCiphers = socket.tlsClientHello?.fingerprintData[1].map((cipherHexValueAsDec) => {
@@ -127,6 +124,12 @@ app.get("/tls-info", (req, res) => {
   };
 
   res.status(200).json(response);
+});
+
+// let the react app to handle any unknown routes
+// serve up the index.html if express does'nt recognize the route
+app.get("/*", (req, res) => {
+  res.sendFile(resolve("public", "client", "index.html"));
 });
 
 // Primitive request handler (usage without ExpressJS):
