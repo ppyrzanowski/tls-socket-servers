@@ -1,14 +1,13 @@
 import csv from "csv-parser";
-import { TlsCipherSuiteDTO } from "lib";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-type CsvHeaders = keyof TlsCipherSuiteDTO;
+type CsvHeaders = keyof any;
 
-type CipherMap = Map<number, TlsCipherSuiteDTO>;
+type CipherMap = Map<number, any>;
 
 export async function getCipherMappings() {
   return new Promise<CipherMap>((resolve) => {
@@ -33,7 +32,7 @@ export async function getCipherMappings() {
           },
         })
       )
-      .on("data", (data: TlsCipherSuite) => {
+      .on("data", (data: any) => {
         cipherMap.set(data.value.readUInt16BE(0), data);
       })
       .on("end", () => {

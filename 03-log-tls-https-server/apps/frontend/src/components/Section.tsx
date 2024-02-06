@@ -1,4 +1,4 @@
-import { TlsCipherSuiteDTO } from "lib";
+import { TlsCipherSuiteDTO } from "dto-types";
 import { FunctionComponent } from "react";
 
 type Props = {

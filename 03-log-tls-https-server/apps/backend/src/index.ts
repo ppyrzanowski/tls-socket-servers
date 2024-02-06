@@ -5,7 +5,6 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { trackClientHellos } from "read-tls-client-hello";
 import { getCipherMappings } from "./cipherMappings.js";
-import { getCipherInfo } from "node:crypto";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -37,7 +36,7 @@ app.get("/cipher-list", (req, res) => {
     }
     // const cipherValueInBytes = cipher.value.toString("hex"); // missing byte seperation
     const valueAsTwoBytes = Array.from(cipher.value)
-      .map((b) => `0x${b.toString(16)}`)
+      .map((b: any) => `0x${b.toString(16)}`)
       .join(",");
 
     return `${cipherHexValueAsDec} (${valueAsTwoBytes}) ${cipher.description}`;

@@ -3,7 +3,7 @@ import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
 import Section from "./components/Section";
-import { TlsCipherSuiteDTO } from "lib";
+import { TlsCipherSuiteDTO } from "dto-types";
 
 // interface CipherSuite {
 //   value: string;
