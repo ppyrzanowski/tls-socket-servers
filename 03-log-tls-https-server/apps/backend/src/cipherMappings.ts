@@ -1,20 +1,14 @@
 import csv from "csv-parser";
+import { TlsCipherSuiteDTO } from "lib";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-interface TlsCipherSuite {
-  value: Buffer;
-  description: string;
-  recommended: boolean | null;
-  reference: string;
-}
+type CsvHeaders = keyof TlsCipherSuiteDTO;
 
-type CsvHeaders = keyof TlsCipherSuite;
-
-type CipherMap = Map<number, TlsCipherSuite>;
+type CipherMap = Map<number, TlsCipherSuiteDTO>;
 
 export async function getCipherMappings() {
   return new Promise<CipherMap>((resolve) => {

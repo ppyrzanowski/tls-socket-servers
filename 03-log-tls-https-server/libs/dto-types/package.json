@@ -1,5 +1,5 @@
 {
-  "name": "lib",
+  "name": "dto-types",
   "private": true,
   "version": "0.0.0",
   "author": "Patrik Pyrzanowski",
@@ -22,10 +22,11 @@
   },
   "scripts": {
     "dev": "pnpm tsc --noEmit --watch",
-    "build": "tsc",
-    "clean": "echo \"not implemented yet\""
+    "build": "pnpm clean && pnpm tsc",
+    "clean": "rimraf dist/"
   },
   "devDependencies": {
+    "rimraf": "^5.0.5",
     "typescript": "^5.3.3"
   }
 }
