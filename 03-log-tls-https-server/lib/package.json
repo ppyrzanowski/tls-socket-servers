@@ -1,0 +1,31 @@
+{
+  "name": "lib",
+  "private": true,
+  "version": "0.0.0",
+  "author": "Patrik Pyrzanowski",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": [
+      "./src/*.ts",
+      "./src/*/index.ts"
+    ]
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./src/*",
+        "./src/*/index"
+      ]
+    }
+  },
+  "scripts": {
+    "dev": "pnpm tsc --noEmit --watch",
+    "build": "tsc",
+    "clean": "echo \"not implemented yet\""
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
