@@ -17,12 +17,12 @@ function App() {
   const [data, setData] = useState<TlsCipherSuiteDTO[]>([]);
 
   async function getTlsInfo() {
-    const tlsInfoRes = await fetch("/tls-info");
+    const tlsInfoRes = await fetch("/my-cipher-suites");
     if (!tlsInfoRes.ok) {
       return null;
     }
-    const tlsInfo = await tlsInfoRes.json();
-    setData(tlsInfo.clientCiphers);
+    const tlsInfo = (await tlsInfoRes.json()) as TlsCipherSuiteDTO[];
+    setData(tlsInfo);
   }
 
   return (

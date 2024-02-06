@@ -10,7 +10,11 @@ const Section: FunctionComponent<Props> = (props) => {
     <section>
       <ul>
         {props.dataList.map((item) => (
-          <li>{JSON.stringify(item)}</li>
+          <li>
+            <code>
+              {item.hex_value_str} {item.description} {item.reference}
+            </code>
+          </li>
         ))}
       </ul>
     </section>

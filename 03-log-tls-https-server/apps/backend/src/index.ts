@@ -5,6 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { trackClientHellos } from "read-tls-client-hello";
 import { getCipherMappings } from "./cipherMappings.js";
+import { TlsCipherSuiteDTO } from "dto-types";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -26,39 +27,47 @@ const app = express();
 // React frontend bundle
 app.use(express.static(resolve("public", "client")));
 
-app.get("/cipher-list", (req, res) => {
+app.get("/my-cipher-suites", (req, res) => {
   let socket = req.socket as TLSSocket;
+  const fingerprintData = socket.tlsClientHello?.fingerprintData;
 
-  const clientCiphers = socket.tlsClientHello?.fingerprintData[1].map((cipherHexValueAsDec) => {
-    const cipher = cipherMappings.get(cipherHexValueAsDec);
-    if (!cipher) {
-      throw new Error("someting went wrong mapping cipher byte value");
-    }
-    // const cipherValueInBytes = cipher.value.toString("hex"); // missing byte seperation
-    const valueAsTwoBytes = Array.from(cipher.value)
-      .map((b: any) => `0x${b.toString(16)}`)
-      .join(",");
+  if (!fingerprintData) {
+    throw new Error("No fingerprint data available");
+  }
 
-    return `${cipherHexValueAsDec} (${valueAsTwoBytes}) ${cipher.description}`;
-  });
+  const [_tlsVersion, cipherHexValueUint16Array, _extensions, _groups, _curveFormats] =
+    fingerprintData;
 
-  console.log("client ciphers:", clientCiphers);
+  const clientCipherSuitesDto: TlsCipherSuiteDTO[] =
+    cipherHexValueUint16Array.map<TlsCipherSuiteDTO>((cipherHexValueUint16) => {
+      const cipherSuite = cipherMappings.get(cipherHexValueUint16);
+      if (!cipherSuite) {
+        throw new Error(
+          `Couldn't find mapping of cipher-hex-value-uint16 (${cipherHexValueUint16}) to cipher-suite`
+        );
+      }
+      // Convert cipher-hex-bytes buffer `<Buffer 13 01> to array of two uint8 values `[19,1]`
+      const hexValueUint8Array = Array.from(cipherSuite.value);
+      if (hexValueUint8Array.length !== 2) {
+        throw new Error(`Invalid cipher-hex-bytes buffer conversion, recievd length: \
+        ${hexValueUint8Array.length}`);
+      }
+      // Convert uint8 array `[19,1]` to string `0x13,0x01`
+      const hexValueStr = hexValueUint8Array.map((b: number) => `0x${b.toString(16)}`).join(",");
 
-  const html = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-</head>
-<body>
-  <code>${clientCiphers?.join("<br>")}</code>
-  
-</body>
-</html>
-  `;
-  res.status(200).send(html);
+      return {
+        hex_value_uint16: cipherHexValueUint16,
+        hex_value_uint8_array: [hexValueUint8Array[0], hexValueUint8Array[1]],
+        hex_value_str: hexValueStr,
+        description: cipherSuite.description,
+        recommended: cipherSuite.recommended,
+        reference: cipherSuite.reference,
+      } as TlsCipherSuiteDTO;
+    });
+
+  console.log("client ciphers:", clientCipherSuitesDto);
+
+  res.status(200).json(clientCipherSuitesDto);
 });
 
 app.get("/tls-info", (req, res) => {
