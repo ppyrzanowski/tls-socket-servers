@@ -1,13 +1,18 @@
 {
-  "name": "tls-socket-server",
-  "version": "1.0.0",
+  "name": "echo-tls-socket-server",
+  "version": "0.0.1",
   "description": "",
   "main": "server/index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "server": "node server",
+    "client": "node client"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "keywords": [
+    "tls",
+    "tls-socket",
+    "socket-server"
+  ],
+  "author": "Patrik Pyrzanowski",
+  "license": "MIT"
 }
